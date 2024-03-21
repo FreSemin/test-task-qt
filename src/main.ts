@@ -1,12 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { APP_DOCKER_PORT, APP_LISTEN_DOCKER_PORT, APP_LISTEN_PORT, APP_PORT } from '@common/constants';
+import { APP_DOCKER_PORT, APP_LISTEN_DOCKER_PORT, APP_LISTEN_PORT, APP_PORT, APP_PREFIX } from '@common/constants';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
     const configService = app.get(ConfigService);
+
+    app.setGlobalPrefix(configService.get('APP_PREFIX', APP_PREFIX));
 
     const port = configService.get<number>('APP_PORT', APP_PORT);
 

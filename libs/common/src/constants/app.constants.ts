@@ -1,3 +1,5 @@
+export const APP_PREFIX = 'api';
+
 export const APP_PORT = 4000;
 
 export const APP_DOCKER_PORT = 4000;
