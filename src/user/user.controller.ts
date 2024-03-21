@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UnprocessableEntityException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { EmailTakenError } from '@common/utils';
 
 @Controller('user')
 export class UserController {
@@ -8,6 +9,14 @@ export class UserController {
 
     @Post()
     async create(@Body() createUserDto: CreateUserDto) {
-        return await this.userService.create(createUserDto);
+        try {
+            return await this.userService.create(createUserDto);
+        } catch (err) {
+            if (err instanceof EmailTakenError) {
+                throw new UnprocessableEntityException(err.message);
+            }
+
+            throw err;
+        }
     }
 }
