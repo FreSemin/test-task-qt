@@ -24,6 +24,12 @@
       "@user/*": [
         "src/user/*"
       ],
+      "@database": [
+        "src/database"
+      ],
+      "@database/*": [
+        "src/database/*"
+      ],
       "@common": [
         "libs/common/src"
       ],
