@@ -1,0 +1,36 @@
+name: test-task-qt
+version: '3.8'
+
+services:
+    qt-db:
+        container_name: qt-db
+        build:
+            context: .
+            dockerfile: ./docker/db.dockerfile
+        restart: unless-stopped
+        networks:
+            - qt-network
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        ports:
+            - '${POSTGRES_PORT:-5432}:5432'
+        env_file:
+            - .env
+        volumes:
+            - qt-db-data:/var/lib/postgresql/data
+            - qt-db-logs:/var/log/postgresql
+        healthcheck:
+            test: ['CMD', 'pg_isready -U ${POSTGRES_USER}']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    qt-db-data:
+    qt-db-logs:
+
+networks:
+    qt-network:
+        driver: bridge
