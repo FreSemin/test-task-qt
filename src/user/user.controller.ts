@@ -31,6 +31,7 @@ export class UserController {
         }
     }
 
+    // TODO: Ref delete this?
     @Get(':emailOrId')
     async findOne(@Param('emailOrId') emailOrId: string) {
         try {
