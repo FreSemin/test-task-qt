@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { EmailTakenError } from '@common/utils';
+import { EmailTakenError, EntityNotFoundError } from '@common/utils';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('user')
@@ -25,6 +25,19 @@ export class UserController {
         } catch (err) {
             if (err instanceof EmailTakenError) {
                 throw new UnprocessableEntityException(err.message);
+            }
+
+            throw err;
+        }
+    }
+
+    @Get(':emailOrId')
+    async findOne(@Param('emailOrId') emailOrId: string) {
+        try {
+            return await this.userService.findOneByEmailOrId(emailOrId);
+        } catch (err) {
+            if (err instanceof EntityNotFoundError) {
+                throw new NotFoundException(err.message);
             }
 
             throw err;
