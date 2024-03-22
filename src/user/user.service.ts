@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,6 +7,7 @@ import { genSalt, hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { isUUID } from 'class-validator';
 import { EMAIL_TAKEN_TEXT, ENTITY_BY_VALUE_NOT_FOUND_TEXT, EntitiesTypes } from '@common/constants';
+import { RegisterDto } from '@auth/dto';
 
 @Injectable()
 export class UserService {
@@ -18,22 +18,23 @@ export class UserService {
     ) {}
 
     private async hashPassword(password: string): Promise<string> {
+        // TODO: Add default number to constants
         const salt = await genSalt(Number(this.configService.get<number>('CRYPT_SALT', 10)));
 
         return await hash(password, salt);
     }
 
-    async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-        const existingUser = await this.findOneByEmail(createUserDto.email);
+    async create(registerDto: RegisterDto): Promise<UserEntity> {
+        const existingUser = await this.findOneByEmail(registerDto.email);
 
         if (existingUser) {
-            throw new EmailTakenError(EMAIL_TAKEN_TEXT(createUserDto.email));
+            throw new EmailTakenError(EMAIL_TAKEN_TEXT(registerDto.email));
         }
 
-        const hashedPassword = await this.hashPassword(createUserDto.password);
+        const hashedPassword = await this.hashPassword(registerDto.password);
 
         const newUser = await this.userRepository.create({
-            ...createUserDto,
+            ...registerDto,
             password: hashedPassword,
         });
 
@@ -48,7 +49,7 @@ export class UserService {
         return this.userRepository.findOneBy({ email });
     }
 
-    async findOneByEmailOrId(emailOrId: string): Promise<UserEntity | null> {
+    async findOneByEmailOrId(emailOrId: string): Promise<UserEntity> {
         if (isUUID(emailOrId)) {
             const user = await this.findOneById(emailOrId);
 
