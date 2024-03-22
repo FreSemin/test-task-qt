@@ -1,8 +1,19 @@
-import { Body, Controller, Post, UnprocessableEntityException } from '@nestjs/common';
+import {
+    Body,
+    ClassSerializerInterceptor,
+    Controller,
+    Get,
+    NotFoundException,
+    Param,
+    Post,
+    UnprocessableEntityException,
+    UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { EmailTakenError } from '@common/utils';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
