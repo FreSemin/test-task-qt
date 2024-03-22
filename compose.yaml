@@ -27,9 +27,32 @@ services:
             timeout: 5s
             retries: 5
 
+    qt-redis:
+        container_name: qt-redis
+        image: redis:7.2-alpine
+        restart: unless-stopped
+        networks:
+            - qt-network
+        ports:
+            - '${REDIS_PORT:-6379}:6379'
+        volumes:
+            - qt-redis-data:/data
+
+    qt-redis-gui:
+        container_name: qt-redis-gui
+        image: redislabs/redisinsight
+        restart: no
+        networks:
+            - qt-network
+        ports:
+            - '${REDIS_GUI_PORT}:5540'
+        depends_on:
+            - qt-redis
+
 volumes:
     qt-db-data:
     qt-db-logs:
+    qt-redis-data:
 
 networks:
     qt-network:
