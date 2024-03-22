@@ -30,6 +30,12 @@
       "@database/*": [
         "src/database/*"
       ],
+      "@auth": [
+        "src/auth"
+      ],
+      "@auth/*": [
+        "src/auth/*"
+      ],
       "@common": [
         "libs/common/src"
       ],
