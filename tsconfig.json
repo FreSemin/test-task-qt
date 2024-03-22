@@ -36,6 +36,12 @@
       "@auth/*": [
         "src/auth/*"
       ],
+      "@redis": [
+        "src/redis"
+      ],
+      "@redis/*": [
+        "src/redis/*"
+      ],
       "@common": [
         "libs/common/src"
       ],
