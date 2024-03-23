@@ -4,6 +4,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-yet';
+import { convertToMilliseconds } from '@common/utils';
 
 @Module({
     imports: [
@@ -12,7 +13,8 @@ import { redisStore } from 'cache-manager-redis-yet';
             useFactory: async (configService: ConfigService) => ({
                 store: await redisStore({
                     url: configService.get('REDIS_URL'),
-                    ttl: configService.get('REDIS_TTL'),
+                    // TODO: add default time to constants
+                    ttl: convertToMilliseconds(configService.get('REDIS_TTL', '1h')),
                 }),
             }),
             inject: [ConfigService],
