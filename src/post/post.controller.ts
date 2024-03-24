@@ -28,6 +28,19 @@ export class PostController {
         }
     }
 
+    @Get(':id')
+    async findOne(@Param('id') id: string) {
+        try {
+            return await this.postService.findOne(id);
+        } catch (err) {
+            if (err instanceof EntityNotFoundError) {
+                throw new NotFoundException(err.message);
+            }
+
+            throw err;
+        }
+    }
+
     @Post()
     async create(@Body() createPostDto: CreatePostDto, @CurrentUser('sub') userId: string) {
         try {
