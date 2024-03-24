@@ -9,6 +9,9 @@ export class PostEntity {
     @Column()
     name: string;
 
+    @Column()
+    description: string;
+
     @CreateDateColumn()
     published_at: Date;
 
