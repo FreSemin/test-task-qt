@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Post1711313710423 implements MigrationInterface {
-    name = 'Post1711313710423'
+    name = 'Post1711313710423';
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -28,5 +28,4 @@ export class Post1711313710423 implements MigrationInterface {
             DROP TABLE "posts"
         `);
     }
-
 }
