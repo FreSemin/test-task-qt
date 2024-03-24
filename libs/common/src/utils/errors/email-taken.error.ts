@@ -1,5 +1,5 @@
 export class EmailTakenError extends Error {
-    constructor(message: string) {
-        super(message);
+    constructor(email: string) {
+        super(`Email ${email} already taken!`);
     }
 }

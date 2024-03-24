@@ -6,7 +6,7 @@ import { EmailTakenError, EntityNotFoundError } from '@common/utils';
 import { genSalt, hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { isUUID } from 'class-validator';
-import { EMAIL_TAKEN_TEXT, ENTITY_BY_VALUE_NOT_FOUND_TEXT, EntitiesTypes } from '@common/constants';
+import { EntitiesTypes } from '@common/constants';
 import { RegisterDto } from '@auth/dto';
 
 @Injectable()
@@ -18,7 +18,6 @@ export class UserService {
     ) {}
 
     private async hashPassword(password: string): Promise<string> {
-        // TODO: Add default number to constants
         const salt = await genSalt(Number(this.configService.get<number>('CRYPT_SALT', 10)));
 
         return await hash(password, salt);
@@ -28,7 +27,7 @@ export class UserService {
         const existingUser = await this.findOneByEmail(registerDto.email);
 
         if (existingUser) {
-            throw new EmailTakenError(EMAIL_TAKEN_TEXT(registerDto.email));
+            throw new EmailTakenError(registerDto.email);
         }
 
         const hashedPassword = await this.hashPassword(registerDto.password);
@@ -54,7 +53,7 @@ export class UserService {
             const user = await this.findOneById(emailOrId);
 
             if (!user) {
-                throw new EntityNotFoundError(ENTITY_BY_VALUE_NOT_FOUND_TEXT(EntitiesTypes.USER, emailOrId));
+                throw new EntityNotFoundError(EntitiesTypes.USER, emailOrId);
             }
 
             return user;
@@ -63,7 +62,7 @@ export class UserService {
         const user = await this.findOneByEmail(emailOrId);
 
         if (!user) {
-            throw new EntityNotFoundError(ENTITY_BY_VALUE_NOT_FOUND_TEXT(EntitiesTypes.USER, emailOrId));
+            throw new EntityNotFoundError(EntitiesTypes.USER, emailOrId);
         }
 
         return user;
