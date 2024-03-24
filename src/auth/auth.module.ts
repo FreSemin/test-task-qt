@@ -15,7 +15,7 @@ import { RedisModule } from '@redis/redis.module';
                 secret: configService.get('JWT_SECRET_KEY'),
                 signOptions: {
                     // TODO: add default value
-                    expiresIn: configService.get('TOKEN_EXPIRE_TIME'),
+                    expiresIn: configService.get('TOKEN_EXPIRE_TIME', '60s'),
                 },
             }),
             inject: [ConfigService],
