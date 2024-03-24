@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PostEntity } from './entity/post.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { UserService } from '@user/user.service';
 import { EntitiesTypes, OperationTypes } from '@common/constants';
 import { EntityNotFoundError, EntityOperationError, OnlyAuthorManipulationError } from '@common/utils';
+import { QueryParams } from './input';
 
 @Injectable()
 export class PostService {
@@ -25,8 +26,26 @@ export class PostService {
         return userId === postAuthor;
     }
 
-    async findAll(): Promise<PostEntity[]> {
-        return await this.postRepository.find();
+    private async getPostWhereParams(queryParams: QueryParams): Promise<FindOptionsWhere<PostEntity>> {
+        const whereParams: FindOptionsWhere<PostEntity> = {};
+
+        if (queryParams.authorId) {
+            const author = await this.userService.findOneById(queryParams.authorId);
+
+            if (!author) {
+                throw new EntityNotFoundError(EntitiesTypes.USER, queryParams.authorId);
+            }
+
+            whereParams.authorId = queryParams.authorId;
+        }
+
+        return whereParams;
+    }
+
+    async findAll(queryParams: QueryParams): Promise<PostEntity[]> {
+        const whereParams = await this.getPostWhereParams(queryParams);
+
+        return await this.postRepository.find({ where: { ...whereParams } });
     }
 
     async findOne(id: string): Promise<PostEntity> {

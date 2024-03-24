@@ -10,21 +10,27 @@ import {
     ParseUUIDPipe,
     Post,
     Put,
+    Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { CurrentUser } from '@common/decorators';
 import { EntityNotFoundError, EntityOperationError, OnlyAuthorManipulationError } from '@common/utils';
+import { QueryParams } from './input';
 
 @Controller('post')
 export class PostController {
     constructor(private readonly postService: PostService) {}
 
     @Get()
-    async findAll() {
+    async findAll(@Query() queryParams: QueryParams) {
         try {
-            return await this.postService.findAll();
+            return await this.postService.findAll(queryParams);
         } catch (err) {
+            if (err instanceof EntityNotFoundError) {
+                throw new NotFoundException(err.message);
+            }
+
             throw err;
         }
     }
