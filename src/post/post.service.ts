@@ -15,6 +15,16 @@ export class PostService {
         private readonly userService: UserService,
     ) {}
 
+    private async isUserAuthorOfPost(userId: string, postAuthor: string): Promise<boolean> {
+        const user = await this.userService.findOneById(userId);
+
+        if (!user) {
+            throw new EntityNotFoundError(EntitiesTypes.USER, userId);
+        }
+
+        return userId === postAuthor;
+    }
+
     async findAll(): Promise<PostEntity[]> {
         return await this.postRepository.find();
     }
@@ -45,19 +55,9 @@ export class PostService {
     }
 
     async update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<PostEntity> {
-        const post = await this.postRepository.findOneBy({ id });
+        const post = await this.findOne(id);
 
-        if (!post) {
-            throw new EntityNotFoundError(EntitiesTypes.POST, id);
-        }
-
-        const user = await this.userService.findOneById(userId);
-
-        if (!user) {
-            throw new EntityNotFoundError(EntitiesTypes.USER, userId);
-        }
-
-        if (userId !== post.authorId) {
+        if (!(await this.isUserAuthorOfPost(userId, post.authorId))) {
             throw new OnlyAuthorManipulationError();
         }
 
@@ -76,19 +76,9 @@ export class PostService {
     }
 
     async delete(id: string, userId: string): Promise<PostEntity> {
-        const post = await this.postRepository.findOneBy({ id });
+        const post = await this.findOne(id);
 
-        if (!post) {
-            throw new EntityNotFoundError(EntitiesTypes.POST, id);
-        }
-
-        const user = await this.userService.findOneById(userId);
-
-        if (!user) {
-            throw new EntityNotFoundError(EntitiesTypes.USER, userId);
-        }
-
-        if (userId !== post.authorId) {
+        if (!(await this.isUserAuthorOfPost(userId, post.authorId))) {
             throw new OnlyAuthorManipulationError();
         }
 
