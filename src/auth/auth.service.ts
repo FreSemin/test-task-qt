@@ -19,15 +19,15 @@ export class AuthService {
         private readonly configService: ConfigService,
     ) {}
 
-    private getAccessToken(user: UserEntity): AccessToken {
+    private async getAccessToken(user: UserEntity): Promise<AccessToken> {
         return {
             accessToken:
                 // TODO: Add Bearer to Constants
                 'Bearer ' +
-                this.jwtService.sign({
-                    id: user.id,
+                (await this.jwtService.signAsync({
+                    sub: user.id,
                     email: user.email,
-                }),
+                })),
         };
     }
 
@@ -64,7 +64,7 @@ export class AuthService {
             throw new InvalidCredentialsError();
         }
 
-        const accessToken = this.getAccessToken(user);
+        const accessToken = await this.getAccessToken(user);
 
         return {
             accessToken: accessToken.accessToken,
@@ -93,7 +93,7 @@ export class AuthService {
             throw new InvalidCredentialsError();
         }
 
-        const accessToken = this.getAccessToken(user);
+        const accessToken = await this.getAccessToken(user);
 
         return {
             accessToken: accessToken.accessToken,
