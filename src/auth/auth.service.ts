@@ -24,10 +24,15 @@ export class AuthService {
             accessToken:
                 // TODO: Add Bearer to Constants
                 'Bearer ' +
-                (await this.jwtService.signAsync({
-                    sub: user.id,
-                    email: user.email,
-                })),
+                (await this.jwtService.signAsync(
+                    {
+                        sub: user.id,
+                        email: user.email,
+                    },
+                    {
+                        secret: this.configService.get('JWT_SECRET_KEY'),
+                    },
+                )),
         };
     }
 
