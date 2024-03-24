@@ -31,6 +31,7 @@ export class AuthService {
                     },
                     {
                         secret: this.configService.get('JWT_SECRET_KEY'),
+                        expiresIn: this.configService.get('TOKEN_EXPIRE_TIME', '60s'),
                     },
                 )),
         };
