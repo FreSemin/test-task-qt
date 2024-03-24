@@ -7,6 +7,7 @@ import {
     Get,
     NotFoundException,
     Param,
+    ParseUUIDPipe,
     Post,
     Put,
 } from '@nestjs/common';
@@ -29,7 +30,7 @@ export class PostController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
         try {
             return await this.postService.findOne(id);
         } catch (err) {
@@ -55,7 +56,11 @@ export class PostController {
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto, @CurrentUser('sub') userId: string) {
+    async update(
+        @Param('id', new ParseUUIDPipe()) id: string,
+        @Body() updatePostDto: UpdatePostDto,
+        @CurrentUser('sub') userId: string,
+    ) {
         try {
             return await this.postService.update(id, updatePostDto, userId);
         } catch (err) {
@@ -76,7 +81,7 @@ export class PostController {
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string, @CurrentUser('sub') userId: string) {
+    async delete(@Param('id', new ParseUUIDPipe()) id: string, @CurrentUser('sub') userId: string) {
         try {
             return await this.postService.delete(id, userId);
         } catch (err) {
