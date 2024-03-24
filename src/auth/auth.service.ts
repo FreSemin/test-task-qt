@@ -20,6 +20,10 @@ export class AuthService {
         private readonly configService: ConfigService,
     ) {}
 
+    private generateRefreshTokenId(userId: string, agent: string): string {
+        return `RT_${userId}_${agent}`;
+    }
+
     private async getAccessToken(user: UserEntity): Promise<AccessToken> {
         return {
             accessToken:
@@ -45,8 +49,7 @@ export class AuthService {
         const expiresDate = new Date(Date.now() + expiresTime);
 
         const refreshToken = {
-            // TODO: add to constants
-            token: 'RT_' + userId + '_' + agent,
+            token: this.generateRefreshTokenId(userId, agent),
             exp: expiresDate.toISOString(),
             userId,
             userAgent: agent,
