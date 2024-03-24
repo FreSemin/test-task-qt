@@ -1,4 +1,3 @@
-import { APP_DATABASE_TYPE, APP_DATABASE_PORT } from '@common/constants';
 import { DataSourceOptions } from 'typeorm';
 
 import { config } from 'dotenv';
@@ -6,9 +5,9 @@ import { config } from 'dotenv';
 config();
 
 export const dataSourceOptions: DataSourceOptions = {
-    type: APP_DATABASE_TYPE,
+    type: 'postgres',
     host: process.env.POSTGRES_HOST,
-    port: process.env.POSTGRES_PORT ? parseInt(process.env.POSTGRES_PORT, 10) : APP_DATABASE_PORT,
+    port: process.env.POSTGRES_PORT ? parseInt(process.env.POSTGRES_PORT, 10) : 5432,
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
