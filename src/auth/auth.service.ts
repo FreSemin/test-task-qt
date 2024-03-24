@@ -9,7 +9,7 @@ import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@redis/redis.service';
 import { ConfigService } from '@nestjs/config';
-import { DEFAULT_REFRESH_TOKEN_EXPIRE_TIME, DEFAULT_TOKEN_EXPIRE_TIME } from '@common/constants';
+import { BEARER, DEFAULT_REFRESH_TOKEN_EXPIRE_TIME, DEFAULT_TOKEN_EXPIRE_TIME } from '@common/constants';
 
 @Injectable()
 export class AuthService {
@@ -23,8 +23,7 @@ export class AuthService {
     private async getAccessToken(user: UserEntity): Promise<AccessToken> {
         return {
             accessToken:
-                // TODO: Add Bearer to Constants
-                'Bearer ' +
+                `${BEARER} ` +
                 (await this.jwtService.signAsync(
                     {
                         sub: user.id,

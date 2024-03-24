@@ -4,6 +4,9 @@ export enum NODE_ENV {
     PROD = 'production',
 }
 
+// APP
+export const BEARER = 'Bearer';
+
 // REDIS
 export const DEFAULT_REDIS_TTL = '1h';
 
