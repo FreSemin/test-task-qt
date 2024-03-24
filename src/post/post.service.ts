@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PostEntity } from './entity/post.entity';
-import { EntityNotFoundError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { UserService } from '@user/user.service';
-import { EntitiesTypes } from '@common/constants';
-import { OnlyAuthorManipulationError, UpdatePostError } from '@common/utils';
+import { EntitiesTypes, OperationTypes } from '@common/constants';
+import { EntityNotFoundError, EntityOperationError, OnlyAuthorManipulationError } from '@common/utils';
 
 @Injectable()
 export class PostService {
@@ -71,7 +71,33 @@ export class PostService {
         if (updateResult.affected && updateResult.affected > 0) {
             return newPost;
         } else {
-            throw new UpdatePostError();
+            throw new EntityOperationError(EntitiesTypes.POST, OperationTypes.PUT);
+        }
+    }
+
+    async delete(id: string, userId: string): Promise<PostEntity> {
+        const post = await this.postRepository.findOneBy({ id });
+
+        if (!post) {
+            throw new EntityNotFoundError(EntitiesTypes.POST, id);
+        }
+
+        const user = await this.userService.findOneById(userId);
+
+        if (!user) {
+            throw new EntityNotFoundError(EntitiesTypes.USER, userId);
+        }
+
+        if (userId !== post.authorId) {
+            throw new OnlyAuthorManipulationError();
+        }
+
+        const deleteResult = await this.postRepository.delete({ id });
+
+        if (deleteResult.affected && deleteResult.affected > 0) {
+            return post;
+        } else {
+            throw new EntityOperationError(EntitiesTypes.POST, OperationTypes.DELETE);
         }
     }
 }

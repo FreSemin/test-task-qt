@@ -2,6 +2,7 @@ import {
     BadRequestException,
     Body,
     Controller,
+    Delete,
     ForbiddenException,
     Get,
     NotFoundException,
@@ -12,8 +13,7 @@ import {
 import { PostService } from './post.service';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { CurrentUser } from '@common/decorators';
-import { EntityNotFoundError } from 'typeorm';
-import { OnlyAuthorManipulationError, UpdatePostError } from '@common/utils';
+import { EntityNotFoundError, EntityOperationError, OnlyAuthorManipulationError } from '@common/utils';
 
 @Controller('post')
 export class PostController {
@@ -67,7 +67,28 @@ export class PostController {
                 throw new ForbiddenException(err.message);
             }
 
-            if (err instanceof UpdatePostError) {
+            if (err instanceof EntityOperationError) {
+                throw new BadRequestException(err.message);
+            }
+
+            throw err;
+        }
+    }
+
+    @Delete(':id')
+    async delete(@Param('id') id: string, @CurrentUser('sub') userId: string) {
+        try {
+            return await this.postService.delete(id, userId);
+        } catch (err) {
+            if (err instanceof EntityNotFoundError) {
+                throw new NotFoundException(err.message);
+            }
+
+            if (err instanceof OnlyAuthorManipulationError) {
+                throw new ForbiddenException(err.message);
+            }
+
+            if (err instanceof EntityOperationError) {
                 throw new BadRequestException(err.message);
             }
 
