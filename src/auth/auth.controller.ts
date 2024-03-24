@@ -18,8 +18,9 @@ import { Tokens } from './interfaces';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Cookie, Public, UserAgent } from '@common/decorators';
+import { NODE_ENV } from '@common/constants';
 
-const REFRESH_TOKEN = 'refresh_token';
+const REFRESH_TOKEN_COOKIE = 'refresh_token';
 
 @Public()
 @Controller('auth')
@@ -34,12 +35,11 @@ export class AuthController {
             throw new UnauthorizedException();
         }
 
-        // TODO: add Cookie name to constants
-        res.cookie(REFRESH_TOKEN, tokens.refreshToken.token, {
+        res.cookie(REFRESH_TOKEN_COOKIE, tokens.refreshToken.token, {
             httpOnly: true,
             sameSite: 'lax',
             expires: new Date(tokens.refreshToken.exp),
-            secure: this.configService.get('NODE_ENV', 'development') === 'production',
+            secure: this.configService.get('NODE_ENV', NODE_ENV.DEV) === NODE_ENV.PROD,
             path: '/',
         });
 
@@ -47,7 +47,7 @@ export class AuthController {
     }
 
     private deleteRefreshTokenFromCookies(res: Response) {
-        res.cookie(REFRESH_TOKEN, '', {
+        res.cookie(REFRESH_TOKEN_COOKIE, '', {
             httpOnly: true,
             secure: true,
             expires: new Date(),
@@ -90,7 +90,11 @@ export class AuthController {
     }
 
     @Get('refresh')
-    async refreshTokens(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response, @UserAgent() agent: string) {
+    async refreshTokens(
+        @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
+        @Res() res: Response,
+        @UserAgent() agent: string,
+    ) {
         try {
             if (!refreshToken) {
                 throw new UnauthorizedException();
@@ -109,7 +113,7 @@ export class AuthController {
     }
 
     @Get('logout')
-    async logout(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response) {
+    async logout(@Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string, @Res() res: Response) {
         try {
             if (!refreshToken) {
                 res.sendStatus(HttpStatus.OK);

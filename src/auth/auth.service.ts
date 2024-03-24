@@ -9,6 +9,7 @@ import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@redis/redis.service';
 import { ConfigService } from '@nestjs/config';
+import { DEFAULT_REFRESH_TOKEN_EXPIRE_TIME, DEFAULT_TOKEN_EXPIRE_TIME } from '@common/constants';
 
 @Injectable()
 export class AuthService {
@@ -31,14 +32,16 @@ export class AuthService {
                     },
                     {
                         secret: this.configService.get('JWT_SECRET_KEY'),
-                        expiresIn: this.configService.get('TOKEN_EXPIRE_TIME', '60s'),
+                        expiresIn: this.configService.get('TOKEN_EXPIRE_TIME', DEFAULT_TOKEN_EXPIRE_TIME),
                     },
                 )),
         };
     }
 
     private async getRefreshToken(userId: string, agent: string): Promise<RefreshToken> {
-        const expiresTime = convertToMilliseconds(this.configService.get('TOKEN_REFRESH_EXPIRE_TIME', '24h'));
+        const expiresTime = convertToMilliseconds(
+            this.configService.get('TOKEN_REFRESH_EXPIRE_TIME', DEFAULT_REFRESH_TOKEN_EXPIRE_TIME),
+        );
 
         const expiresDate = new Date(Date.now() + expiresTime);
 
@@ -93,7 +96,7 @@ export class AuthService {
 
         const newRefreshToken = await this.getRefreshToken(token.userId, agent);
 
-        const user: UserEntity | null = await this.userService.findOneById(newRefreshToken.userId);
+        const user = await this.userService.findOneById(newRefreshToken.userId);
 
         if (!user) {
             throw new InvalidCredentialsError();

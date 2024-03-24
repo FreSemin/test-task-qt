@@ -6,6 +6,7 @@ import { RedisModule } from '@redis/redis.module';
 import { GUARDS } from './guards';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DEFAULT_TOKEN_EXPIRE_TIME } from '@common/constants';
 
 @Module({
     imports: [
@@ -16,8 +17,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get('JWT_SECRET_KEY'),
                 signOptions: {
-                    // TODO: add default value
-                    expiresIn: configService.get('TOKEN_EXPIRE_TIME', '60s'),
+                    expiresIn: configService.get('TOKEN_EXPIRE_TIME', DEFAULT_TOKEN_EXPIRE_TIME),
                 },
             }),
             inject: [ConfigService],
