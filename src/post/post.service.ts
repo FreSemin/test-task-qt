@@ -34,7 +34,7 @@ export class PostService {
         return await this.postRepository.save(post);
     }
 
-    async update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<any> {
+    async update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<PostEntity> {
         const post = await this.postRepository.findOneBy({ id });
 
         if (!post) {
