@@ -19,7 +19,7 @@ import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Cookie, UserAgent } from '@common/decorators';
 
-const REFRESH_TOKEN = 'refreshtoken';
+const REFRESH_TOKEN = 'refresh_token';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
