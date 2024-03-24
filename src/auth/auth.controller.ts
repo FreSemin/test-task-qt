@@ -46,6 +46,16 @@ export class AuthController {
         res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
     }
 
+    private deleteRefreshTokenFromCookies(res: Response) {
+        res.cookie(REFRESH_TOKEN, '', {
+            httpOnly: true,
+            secure: true,
+            expires: new Date(),
+        });
+
+        res.sendStatus(HttpStatus.OK);
+    }
+
     @UseInterceptors(ClassSerializerInterceptor)
     @Post('reg')
     async reg(@Body() registerDto: RegisterDto) {
@@ -94,6 +104,23 @@ export class AuthController {
                 throw new UnauthorizedException(err.message);
             }
 
+            throw err;
+        }
+    }
+
+    @Get('logout')
+    async logout(@Cookie(REFRESH_TOKEN) refreshToken: string, @Res() res: Response) {
+        try {
+            if (!refreshToken) {
+                res.sendStatus(HttpStatus.OK);
+
+                return;
+            }
+
+            await this.authService.logout(refreshToken);
+
+            this.deleteRefreshTokenFromCookies(res);
+        } catch (err) {
             throw err;
         }
     }

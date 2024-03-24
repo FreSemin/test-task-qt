@@ -106,4 +106,8 @@ export class AuthService {
             refreshToken: newRefreshToken,
         };
     }
+
+    async logout(refreshToken: string): Promise<void> {
+        await this.redisService.del(refreshToken);
+    }
 }
