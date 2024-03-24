@@ -24,6 +24,12 @@
       "@user/*": [
         "src/user/*"
       ],
+      "@post": [
+        "src/post"
+      ],
+      "@post/*": [
+        "src/post/*"
+      ],
       "@database": [
         "src/database"
       ],
