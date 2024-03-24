@@ -22,7 +22,6 @@ import { Cookie, Public, UserAgent } from '@common/decorators';
 const REFRESH_TOKEN = 'refresh_token';
 
 @Public()
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -47,6 +46,7 @@ export class AuthController {
         res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
     }
 
+    @UseInterceptors(ClassSerializerInterceptor)
     @Post('reg')
     async reg(@Body() registerDto: RegisterDto) {
         try {
