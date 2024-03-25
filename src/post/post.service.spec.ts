@@ -82,6 +82,12 @@ describe('PostService', () => {
 
             expect(await service.findOne(postMock.id)).toEqual(postMock);
         });
+
+        it('should throw error if post not exist', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(null);
+
+            await expect(service.findOne(postMock.id)).rejects.toThrow(EntityNotFoundError);
+        });
     });
 
     describe('create', () => {
@@ -102,9 +108,7 @@ describe('PostService', () => {
 
             jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(null);
 
-            await expect(async () => {
-                await service.create(createPostDto, authorMock.id);
-            }).rejects.toThrow(EntityNotFoundError);
+            await expect(service.create(createPostDto, authorMock.id)).rejects.toThrow(EntityNotFoundError);
         });
     });
 });
