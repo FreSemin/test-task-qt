@@ -12,15 +12,15 @@ export class Post {
     @Column()
     description: string;
 
-    @CreateDateColumn()
-    published_at: Date;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
-    @Column({ nullable: false })
+    @Column({ name: 'author_id', nullable: false })
     authorId: string;
 
     @ManyToOne(() => User, (user) => user.id, {
         onDelete: 'CASCADE',
     })
-    @JoinColumn({ name: 'authorId' })
+    @JoinColumn({ name: 'author_id' })
     author: User;
 }
