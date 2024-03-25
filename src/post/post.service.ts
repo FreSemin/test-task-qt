@@ -50,17 +50,17 @@ export class PostService {
         }
 
         if (queryParams.from && queryParams.to) {
-            whereParams.published_at = Between(new Date(queryParams.from), new Date(queryParams.to));
+            whereParams.createdAt = Between(new Date(queryParams.from), new Date(queryParams.to));
 
             return whereParams;
         }
 
         if (queryParams.from) {
-            whereParams.published_at = MoreThanOrEqual(new Date(queryParams.from));
+            whereParams.createdAt = MoreThanOrEqual(new Date(queryParams.from));
         }
 
         if (queryParams.to) {
-            whereParams.published_at = LessThanOrEqual(new Date(queryParams.to));
+            whereParams.createdAt = LessThanOrEqual(new Date(queryParams.to));
         }
 
         return whereParams;
