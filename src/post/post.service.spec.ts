@@ -8,6 +8,9 @@ import { CreatePostDto } from './dto';
 import { User } from '@user/entities/user.entity';
 import { Post } from './entity/post.entity';
 import { EntityNotFoundError } from '@common/utils';
+import { config } from 'dotenv';
+
+config();
 
 const authorMock: User = {
     id: 'f2e1593c-bf97-4421-bd07-375440610dd2',
@@ -33,6 +36,9 @@ const postMock: Post = {
     },
 };
 
+const apiPostPath = `${process.env.APP_PREFIX}/post`;
+console.log('apiPostPath: ', apiPostPath);
+
 describe('PostService', () => {
     let service: PostService;
     let postRepository: Repository<Post>;
@@ -47,7 +53,12 @@ describe('PostService', () => {
         findOneById: jest.fn((x) => x),
     };
 
-    const mockRedisService = {};
+    const mockRedisService = {
+        get: jest.fn((x) => x),
+        set: jest.fn((key, value) => value),
+    };
+
+    console.log('apiPostPath: ', apiPostPath);
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -72,21 +83,43 @@ describe('PostService', () => {
         postRepository = module.get<Repository<Post>>(getRepositoryToken(Post));
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
 
     describe('findOne', () => {
         it('should get one post successfully', async () => {
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
             jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
 
-            expect(await service.findOne(postMock.id)).toEqual(postMock);
+            expect(await service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).toEqual(postMock);
+            expect(mockRedisService.set).toHaveBeenCalledWith(`${apiPostPath}/${postMock.id}`, postMock);
+        });
+
+        it('should get one post from cache', async () => {
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            expect(await service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).toEqual(postMock);
+            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, `${apiPostPath}/${postMock.id}`, postMock);
+
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(postMock);
+            expect(await service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).toEqual(postMock);
+            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, `${apiPostPath}/${postMock.id}`, postMock);
         });
 
         it('should throw error if post not exist', async () => {
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
             jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(null);
 
-            await expect(service.findOne(postMock.id)).rejects.toThrow(EntityNotFoundError);
+            await expect(service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).rejects.toThrow(
+                EntityNotFoundError,
+            );
+            expect(mockRedisService.set).not.toHaveBeenCalled();
         });
     });
 
