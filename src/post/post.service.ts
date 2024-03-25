@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PostEntity } from './entity/post.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { UserService } from '@user/user.service';
@@ -37,6 +37,20 @@ export class PostService {
             }
 
             whereParams.authorId = queryParams.authorId;
+        }
+
+        if (queryParams.from && queryParams.to) {
+            whereParams.published_at = Between(new Date(queryParams.from), new Date(queryParams.to));
+
+            return whereParams;
+        }
+
+        if (queryParams.from) {
+            whereParams.published_at = MoreThanOrEqual(new Date(queryParams.from));
+        }
+
+        if (queryParams.to) {
+            whereParams.published_at = LessThanOrEqual(new Date(queryParams.to));
         }
 
         return whereParams;
