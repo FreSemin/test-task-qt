@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class PostColumnsFix1711383660395 implements MigrationInterface {
-    name = 'PostColumnsFix1711383660395'
+    name = 'PostColumnsFix1711383660395';
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -50,5 +50,4 @@ export class PostColumnsFix1711383660395 implements MigrationInterface {
             ADD CONSTRAINT "FK_c5a322ad12a7bf95460c958e80e" FOREIGN KEY ("authorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
     }
-
 }
