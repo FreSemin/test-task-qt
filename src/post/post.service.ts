@@ -20,6 +20,12 @@ export class PostService {
         private readonly redisService: RedisService,
     ) {}
 
+    private async clearPostsCache(): Promise<void> {
+        const keys = await this.redisService.getKeys('/api/post?*');
+
+        await this.redisService.mDel(keys);
+    }
+
     private async isUserAuthorOfPost(userId: string, postAuthor: string): Promise<boolean> {
         const user = await this.userService.findOneById(userId);
 
@@ -116,6 +122,8 @@ export class PostService {
         const updateResult = await this.postRepository.update({ id }, newPost);
 
         if (updateResult.affected && updateResult.affected > 0) {
+            await this.clearPostsCache();
+
             return newPost;
         } else {
             throw new EntityOperationError(EntitiesTypes.POST, OperationTypes.PUT);
@@ -132,6 +140,8 @@ export class PostService {
         const deleteResult = await this.postRepository.delete({ id });
 
         if (deleteResult.affected && deleteResult.affected > 0) {
+            await this.clearPostsCache();
+
             return post;
         } else {
             throw new EntityOperationError(EntitiesTypes.POST, OperationTypes.DELETE);
