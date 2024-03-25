@@ -9,11 +9,36 @@ import { User } from '@user/entities/user.entity';
 import { Post } from './entity/post.entity';
 import { EntityNotFoundError } from '@common/utils';
 
+const authorMock: User = {
+    id: 'f2e1593c-bf97-4421-bd07-375440610dd2',
+    name: 'user1',
+    email: 'email1@gmail.com',
+    password: '12345678',
+    posts: [],
+};
+
+const createPostDto: CreatePostDto = {
+    name: 'post name',
+    description: 'post description',
+};
+
+const postMock: Post = {
+    id: '42ca922b-a6cb-476c-9152-ac901622949f',
+    name: 'post name',
+    description: 'post description',
+    createdAt: new Date('2024-03-25T15:26:20.209Z'),
+    authorId: authorMock.id,
+    author: {
+        ...authorMock,
+    },
+};
+
 describe('PostService', () => {
     let service: PostService;
     let postRepository: Repository<Post>;
 
     const mockPostRepository = {
+        findOneBy: jest.fn((x) => x),
         create: jest.fn(),
         save: jest.fn(),
     };
@@ -23,14 +48,6 @@ describe('PostService', () => {
     };
 
     const mockRedisService = {};
-
-    const authorMock: User = {
-        id: 'f2e1593c-bf97-4421-bd07-375440610dd2',
-        name: 'user1',
-        email: 'email1@gmail.com',
-        password: '12345678',
-        posts: [],
-    };
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -59,29 +76,21 @@ describe('PostService', () => {
         expect(service).toBeDefined();
     });
 
+    describe('findOne', () => {
+        it('should get one post successfully', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            expect(await service.findOne(postMock.id)).toEqual(postMock);
+        });
+    });
+
     describe('create', () => {
         it('should create new post successfully', async () => {
-            const createPostDto: CreatePostDto = {
-                name: 'post name',
-                description: 'post description',
-            };
-
-            const post: Post = {
-                id: '42ca922b-a6cb-476c-9152-ac901622949f',
-                name: 'post name',
-                description: 'post description',
-                createdAt: new Date('2024-03-25T15:26:20.209Z'),
-                authorId: authorMock.id,
-                author: {
-                    ...authorMock,
-                },
-            };
-
-            jest.spyOn(postRepository, 'save').mockResolvedValueOnce(post);
+            jest.spyOn(postRepository, 'save').mockResolvedValueOnce(postMock);
 
             const result = await service.create(createPostDto, authorMock.id);
 
-            expect(result).toEqual(post);
+            expect(result).toEqual(postMock);
             expect(result.authorId).toEqual(authorMock.id);
         });
 
