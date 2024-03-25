@@ -9,6 +9,7 @@ import { User } from '@user/entities/user.entity';
 import { Post } from './entity/post.entity';
 import { EntityNotFoundError } from '@common/utils';
 import { config } from 'dotenv';
+import { Paginated } from '@common/pagination/interfaces';
 
 config();
 
@@ -36,6 +37,12 @@ const postMock: Post = {
     },
 };
 
+const postPaginatedMock: Paginated<Post> = {
+    page: 1,
+    data: [postMock],
+    total: 1,
+};
+
 const apiPostPath = `${process.env.APP_PREFIX}/post`;
 
 describe('PostService', () => {
@@ -46,6 +53,7 @@ describe('PostService', () => {
         findOneBy: jest.fn((x) => x),
         create: jest.fn(),
         save: jest.fn(),
+        findAndCount: jest.fn((x) => x),
     };
 
     const mockUserService = {
@@ -86,6 +94,61 @@ describe('PostService', () => {
 
     it('should be defined', () => {
         expect(service).toBeDefined();
+    });
+
+    describe('findAll', () => {
+        it('should get all posts successfully', async () => {
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
+            jest.spyOn(postRepository, 'findAndCount').mockResolvedValueOnce([
+                postPaginatedMock.data,
+                postPaginatedMock.total,
+            ]);
+
+            expect(
+                await service.findAll(
+                    { page: postPaginatedMock.page, take: postPaginatedMock.data.length },
+                    apiPostPath,
+                ),
+            ).toEqual(postPaginatedMock);
+            expect(mockRedisService.set).toHaveBeenCalledWith(apiPostPath, postPaginatedMock);
+        });
+
+        it('should get all posts from cache', async () => {
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
+            jest.spyOn(postRepository, 'findAndCount').mockResolvedValueOnce([
+                postPaginatedMock.data,
+                postPaginatedMock.total,
+            ]);
+
+            expect(
+                await service.findAll(
+                    { page: postPaginatedMock.page, take: postPaginatedMock.data.length },
+                    apiPostPath,
+                ),
+            ).toEqual(postPaginatedMock);
+            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, apiPostPath, postPaginatedMock);
+
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(postPaginatedMock);
+            expect(
+                await service.findAll(
+                    { page: postPaginatedMock.page, take: postPaginatedMock.data.length },
+                    apiPostPath,
+                ),
+            ).toEqual(postPaginatedMock);
+            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, apiPostPath, postPaginatedMock);
+        });
+
+        it('should throw error if author not exist', async () => {
+            jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(null);
+
+            const authorId = 'not-existing-author';
+
+            await expect(
+                service.findAll({ page: 1, take: 1, authorId }, `${apiPostPath}/${postMock.id}?authorId=${authorId}`),
+            ).rejects.toThrow(EntityNotFoundError);
+        });
     });
 
     describe('findOne', () => {
