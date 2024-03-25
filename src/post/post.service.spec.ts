@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostService } from './post.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UserService } from '@user/user.service';
 import { RedisService } from '@redis/redis.service';
 import { CreatePostDto } from './dto';
@@ -56,6 +56,7 @@ describe('PostService', () => {
         save: jest.fn(),
         findAndCount: jest.fn((x) => x),
         update: jest.fn((x) => x),
+        delete: jest.fn((x) => x),
     };
 
     const mockUserService = {
@@ -245,6 +246,22 @@ describe('PostService', () => {
                 OnlyAuthorManipulationError,
             );
         });
+
+        it('should throw error if user is not exist', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(null);
+
+            const updatedPostDto = {
+                ...postMock,
+                name: 'updated post',
+            };
+
+            await expect(service.update(postMock.id, updatedPostDto, postMock.authorId)).rejects.toThrow(
+                EntityNotFoundError,
+            );
+        });
+    });
 
     describe('delete', () => {
         it('should successfully delete post', async () => {
