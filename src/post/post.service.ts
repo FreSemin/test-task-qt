@@ -7,6 +7,8 @@ import { UserService } from '@user/user.service';
 import { EntitiesTypes, OperationTypes } from '@common/constants';
 import { EntityNotFoundError, EntityOperationError, OnlyAuthorManipulationError } from '@common/utils';
 import { QueryParams } from './input';
+import { paginate } from '@common/pagination/paginate';
+import { Paginated } from '@common/pagination/interfaces';
 
 @Injectable()
 export class PostService {
@@ -56,10 +58,10 @@ export class PostService {
         return whereParams;
     }
 
-    async findAll(queryParams: QueryParams): Promise<PostEntity[]> {
+    async findAll(queryParams: QueryParams): Promise<Paginated<PostEntity>> {
         const whereParams = await this.getPostWhereParams(queryParams);
 
-        return await this.postRepository.find({ where: { ...whereParams } });
+        return await paginate<PostEntity>(this.postRepository, whereParams, queryParams);
     }
 
     async findOne(id: string): Promise<PostEntity> {
