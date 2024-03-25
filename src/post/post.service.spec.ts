@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostService } from './post.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { UserService } from '@user/user.service';
 import { RedisService } from '@redis/redis.service';
 import { CreatePostDto } from './dto';
 import { User } from '@user/entities/user.entity';
 import { Post } from './entity/post.entity';
-import { EntityNotFoundError } from '@common/utils';
+import { EntityNotFoundError, OnlyAuthorManipulationError } from '@common/utils';
 import { config } from 'dotenv';
 import { Paginated } from '@common/pagination/interfaces';
 
@@ -51,9 +51,11 @@ describe('PostService', () => {
 
     const mockPostRepository = {
         findOneBy: jest.fn((x) => x),
-        create: jest.fn(),
+        findOne: jest.fn((x) => x),
+        create: jest.fn((x) => x),
         save: jest.fn(),
         findAndCount: jest.fn((x) => x),
+        update: jest.fn((x) => x),
     };
 
     const mockUserService = {
@@ -63,6 +65,8 @@ describe('PostService', () => {
     const mockRedisService = {
         get: jest.fn((x) => x),
         set: jest.fn((key, value) => value),
+        getKeys: jest.fn(),
+        mDel: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -202,6 +206,44 @@ describe('PostService', () => {
             jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(null);
 
             await expect(service.create(createPostDto, authorMock.id)).rejects.toThrow(EntityNotFoundError);
+        });
+    });
+
+    describe('update', () => {
+        it('should successfully update post', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(authorMock);
+
+            const updatedPostDto = {
+                ...postMock,
+                name: 'updated post',
+            };
+
+            const updateResult: UpdateResult = {
+                raw: '',
+                affected: 1,
+                generatedMaps: [],
+            };
+
+            jest.spyOn(postRepository, 'update').mockResolvedValueOnce(updateResult);
+
+            expect(await service.update(postMock.id, updatedPostDto, postMock.authorId)).toEqual(updatedPostDto);
+        });
+
+        it('should throw error if user is not author of post', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(authorMock);
+
+            const updatedPostDto = {
+                ...postMock,
+                name: 'updated post',
+            };
+
+            await expect(service.update(postMock.id, updatedPostDto, 'not-author-id')).rejects.toThrow(
+                OnlyAuthorManipulationError,
+            );
         });
     });
 });
