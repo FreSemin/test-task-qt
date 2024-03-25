@@ -245,5 +245,37 @@ describe('PostService', () => {
                 OnlyAuthorManipulationError,
             );
         });
+
+    describe('delete', () => {
+        it('should successfully delete post', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(authorMock);
+
+            const deleteResult: DeleteResult = {
+                raw: '',
+                affected: 1,
+            };
+
+            jest.spyOn(postRepository, 'delete').mockResolvedValueOnce(deleteResult);
+
+            expect(await service.delete(postMock.id, authorMock.id)).toEqual(postMock);
+        });
+
+        it('should throw error if user is not author of post', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(authorMock);
+
+            await expect(service.delete(postMock.id, 'not-author-id')).rejects.toThrow(OnlyAuthorManipulationError);
+        });
+
+        it('should throw error if user is not exist', async () => {
+            jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(null);
+
+            await expect(service.delete(postMock.id, 'not-author-id')).rejects.toThrow(EntityNotFoundError);
+        });
     });
 });
