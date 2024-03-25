@@ -1,8 +1,8 @@
-import { UserEntity } from '@user/entities/user.entity';
+import { User } from '@user/entities/user.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'posts' })
-export class PostEntity {
+export class Post {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -18,9 +18,9 @@ export class PostEntity {
     @Column({ nullable: false })
     authorId: string;
 
-    @ManyToOne(() => UserEntity, (user) => user.id, {
+    @ManyToOne(() => User, (user) => user.id, {
         onDelete: 'CASCADE',
     })
     @JoinColumn({ name: 'authorId' })
-    author: UserEntity;
+    author: User;
 }

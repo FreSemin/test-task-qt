@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto';
 import { UserService } from '@user/user.service';
-import { UserEntity } from '@user/entities/user.entity';
+import { User } from '@user/entities/user.entity';
 import { AccessToken, RefreshToken, Tokens } from './interfaces';
 import { InvalidCredentialsError, convertToMilliseconds } from '@common/utils';
 import { compare } from 'bcrypt';
@@ -24,7 +24,7 @@ export class AuthService {
         return `RT_${userId}_${agent}`;
     }
 
-    private async getAccessToken(user: UserEntity): Promise<AccessToken> {
+    private async getAccessToken(user: User): Promise<AccessToken> {
         return {
             accessToken:
                 `${BEARER} ` +
@@ -60,12 +60,12 @@ export class AuthService {
         return refreshToken;
     }
 
-    async reg(registerDto: RegisterDto): Promise<UserEntity> {
+    async reg(registerDto: RegisterDto): Promise<User> {
         return await this.userService.create(registerDto);
     }
 
     async login(loginDto: LoginDto, agent: string): Promise<Tokens> {
-        const user: UserEntity | null = await this.userService.findOneByEmail(loginDto.email);
+        const user: User | null = await this.userService.findOneByEmail(loginDto.email);
 
         if (!user) {
             throw new InvalidCredentialsError();

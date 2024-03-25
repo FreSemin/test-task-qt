@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostEntity } from './entity/post.entity';
+import { Post } from './entity/post.entity';
 import { Between, FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostDto, UpdatePostDto } from './dto';
@@ -13,8 +13,8 @@ import { Paginated } from '@common/pagination/interfaces';
 @Injectable()
 export class PostService {
     constructor(
-        @InjectRepository(PostEntity)
-        private readonly postRepository: Repository<PostEntity>,
+        @InjectRepository(Post)
+        private readonly postRepository: Repository<Post>,
         private readonly userService: UserService,
     ) {}
 
@@ -28,8 +28,8 @@ export class PostService {
         return userId === postAuthor;
     }
 
-    private async getPostWhereParams(queryParams: QueryParams): Promise<FindOptionsWhere<PostEntity>> {
-        const whereParams: FindOptionsWhere<PostEntity> = {};
+    private async getPostWhereParams(queryParams: QueryParams): Promise<FindOptionsWhere<Post>> {
+        const whereParams: FindOptionsWhere<Post> = {};
 
         if (queryParams.authorId) {
             const author = await this.userService.findOneById(queryParams.authorId);
@@ -58,13 +58,13 @@ export class PostService {
         return whereParams;
     }
 
-    async findAll(queryParams: QueryParams, reqUrl: string): Promise<Paginated<PostEntity>> {
+    async findAll(queryParams: QueryParams, reqUrl: string): Promise<Paginated<Post>> {
         const whereParams = await this.getPostWhereParams(queryParams);
 
-        return await paginate<PostEntity>(this.postRepository, whereParams, queryParams);
+        return await paginate<Post>(this.postRepository, whereParams, queryParams);
     }
 
-    async findOne(id: string): Promise<PostEntity> {
+    async findOne(id: string): Promise<Post> {
         const post = await this.postRepository.findOneBy({ id });
 
         if (!post) {
@@ -74,7 +74,7 @@ export class PostService {
         return post;
     }
 
-    async create(createPostDto: CreatePostDto, userId: string): Promise<PostEntity> {
+    async create(createPostDto: CreatePostDto, userId: string): Promise<Post> {
         const user = await this.userService.findOneById(userId);
 
         if (!user) {
@@ -89,7 +89,7 @@ export class PostService {
         return await this.postRepository.save(post);
     }
 
-    async update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<PostEntity> {
+    async update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<Post> {
         const post = await this.findOne(id);
 
         if (!(await this.isUserAuthorOfPost(userId, post.authorId))) {
@@ -110,7 +110,7 @@ export class PostService {
         }
     }
 
-    async delete(id: string, userId: string): Promise<PostEntity> {
+    async delete(id: string, userId: string): Promise<Post> {
         const post = await this.findOne(id);
 
         if (!(await this.isUserAuthorOfPost(userId, post.authorId))) {

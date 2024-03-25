@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserEntity } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EmailTakenError, EntityNotFoundError } from '@common/utils';
@@ -12,8 +12,8 @@ import { RegisterDto } from '@auth/dto';
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
         private readonly configService: ConfigService,
     ) {}
 
@@ -23,7 +23,7 @@ export class UserService {
         return await hash(password, salt);
     }
 
-    async create(registerDto: RegisterDto): Promise<UserEntity> {
+    async create(registerDto: RegisterDto): Promise<User> {
         const existingUser = await this.findOneByEmail(registerDto.email);
 
         if (existingUser) {
@@ -40,15 +40,15 @@ export class UserService {
         return await this.userRepository.save(newUser);
     }
 
-    async findOneById(id: string): Promise<UserEntity | null> {
+    async findOneById(id: string): Promise<User | null> {
         return await this.userRepository.findOneBy({ id });
     }
 
-    async findOneByEmail(email: string): Promise<UserEntity | null> {
+    async findOneByEmail(email: string): Promise<User | null> {
         return this.userRepository.findOneBy({ email });
     }
 
-    async findOneByEmailOrId(emailOrId: string): Promise<UserEntity> {
+    async findOneByEmailOrId(emailOrId: string): Promise<User> {
         if (isUUID(emailOrId)) {
             const user = await this.findOneById(emailOrId);
 
