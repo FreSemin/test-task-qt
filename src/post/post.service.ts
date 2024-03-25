@@ -58,7 +58,7 @@ export class PostService {
         return whereParams;
     }
 
-    async findAll(queryParams: QueryParams): Promise<Paginated<PostEntity>> {
+    async findAll(queryParams: QueryParams, reqUrl: string): Promise<Paginated<PostEntity>> {
         const whereParams = await this.getPostWhereParams(queryParams);
 
         return await paginate<PostEntity>(this.postRepository, whereParams, queryParams);

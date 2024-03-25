@@ -11,21 +11,23 @@ import {
     Post,
     Put,
     Query,
+    Req,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { CurrentUser } from '@common/decorators';
 import { EntityNotFoundError, EntityOperationError, OnlyAuthorManipulationError } from '@common/utils';
 import { QueryParams } from './input';
+import { Request } from 'express';
 
 @Controller('post')
 export class PostController {
     constructor(private readonly postService: PostService) {}
 
     @Get()
-    async findAll(@Query() queryParams: QueryParams) {
+    async findAll(@Query() queryParams: QueryParams, @Req() req: Request) {
         try {
-            return await this.postService.findAll(queryParams);
+            return await this.postService.findAll(queryParams, req.url);
         } catch (err) {
             if (err instanceof EntityNotFoundError) {
                 throw new NotFoundException(err.message);
