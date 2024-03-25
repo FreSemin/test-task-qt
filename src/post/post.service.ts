@@ -66,6 +66,16 @@ export class PostService {
         return whereParams;
     }
 
+    private async getOneOrThrow(id: string): Promise<Post> {
+        const post = await this.postRepository.findOneBy({ id });
+
+        if (!post) {
+            throw new EntityNotFoundError(EntitiesTypes.POST, id);
+        }
+
+        return post;
+    }
+
     async findAll(queryParams: QueryParams, reqUrl: string): Promise<Paginated<Post>> {
         const cachedResult = await this.redisService.get<Paginated<Post>>(reqUrl);
 
@@ -82,12 +92,16 @@ export class PostService {
         return posts;
     }
 
-    async findOne(id: string): Promise<Post> {
-        const post = await this.postRepository.findOneBy({ id });
+    async findOne(id: string, reqUrl: string): Promise<Post> {
+        const cachedPost = await this.redisService.get<Post>(reqUrl);
 
-        if (!post) {
-            throw new EntityNotFoundError(EntitiesTypes.POST, id);
+        if (cachedPost) {
+            return cachedPost;
         }
+
+        const post = await this.getOneOrThrow(id);
+
+        await this.redisService.set(reqUrl, post);
 
         return post;
     }
@@ -108,7 +122,7 @@ export class PostService {
     }
 
     async update(id: string, updatePostDto: UpdatePostDto, userId: string): Promise<Post> {
-        const post = await this.findOne(id);
+        const post = await this.getOneOrThrow(id);
 
         if (!(await this.isUserAuthorOfPost(userId, post.authorId))) {
             throw new OnlyAuthorManipulationError();
@@ -131,7 +145,7 @@ export class PostService {
     }
 
     async delete(id: string, userId: string): Promise<Post> {
-        const post = await this.findOne(id);
+        const post = await this.getOneOrThrow(id);
 
         if (!(await this.isUserAuthorOfPost(userId, post.authorId))) {
             throw new OnlyAuthorManipulationError();

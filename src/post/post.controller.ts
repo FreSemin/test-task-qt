@@ -38,9 +38,9 @@ export class PostController {
     }
 
     @Get(':id')
-    async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    async findOne(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: Request) {
         try {
-            return await this.postService.findOne(id);
+            return await this.postService.findOne(id, req.url);
         } catch (err) {
             if (err instanceof EntityNotFoundError) {
                 throw new NotFoundException(err.message);
