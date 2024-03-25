@@ -9,6 +9,7 @@ import { EntityNotFoundError, EntityOperationError, OnlyAuthorManipulationError 
 import { QueryParams } from './input';
 import { paginate } from '@common/pagination/paginate';
 import { Paginated } from '@common/pagination/interfaces';
+import { RedisService } from '@redis/redis.service';
 
 @Injectable()
 export class PostService {
@@ -16,6 +17,7 @@ export class PostService {
         @InjectRepository(Post)
         private readonly postRepository: Repository<Post>,
         private readonly userService: UserService,
+        private readonly redisService: RedisService,
     ) {}
 
     private async isUserAuthorOfPost(userId: string, postAuthor: string): Promise<boolean> {
@@ -59,9 +61,19 @@ export class PostService {
     }
 
     async findAll(queryParams: QueryParams, reqUrl: string): Promise<Paginated<Post>> {
+        const cachedResult = await this.redisService.get<Paginated<Post>>(reqUrl);
+
+        if (cachedResult) {
+            return cachedResult;
+        }
+
         const whereParams = await this.getPostWhereParams(queryParams);
 
-        return await paginate<Post>(this.postRepository, whereParams, queryParams);
+        const posts = await paginate<Post>(this.postRepository, whereParams, queryParams);
+
+        await this.redisService.set(reqUrl, posts);
+
+        return posts;
     }
 
     async findOne(id: string): Promise<Post> {

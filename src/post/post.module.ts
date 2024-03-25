@@ -4,9 +4,10 @@ import { PostService } from './post.service';
 import { Post } from './entity/post.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '@user/user.module';
+import { RedisModule } from '@redis/redis.module';
 
 @Module({
-    imports: [UserModule, TypeOrmModule.forFeature([Post])],
+    imports: [UserModule, RedisModule, TypeOrmModule.forFeature([Post])],
     controllers: [PostController],
     providers: [PostService],
 })
