@@ -230,6 +230,7 @@ describe('PostService', () => {
             jest.spyOn(postRepository, 'update').mockResolvedValueOnce(updateResult);
 
             expect(await service.update(postMock.id, updatedPostDto, postMock.authorId)).toEqual(updatedPostDto);
+            expect(mockRedisService.mDel).toHaveBeenCalled();
         });
 
         it('should throw error if user is not author of post', async () => {
@@ -277,6 +278,7 @@ describe('PostService', () => {
             jest.spyOn(postRepository, 'delete').mockResolvedValueOnce(deleteResult);
 
             expect(await service.delete(postMock.id, authorMock.id)).toEqual(postMock);
+            expect(mockRedisService.mDel).toHaveBeenCalled();
         });
 
         it('should throw error if user is not author of post', async () => {
