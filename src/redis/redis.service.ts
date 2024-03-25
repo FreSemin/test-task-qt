@@ -17,4 +17,12 @@ export class RedisService {
     async del(key: string): Promise<void> {
         await this.cache.store.del(key);
     }
+
+    async getKeys(pattern?: string): Promise<string[]> {
+        return await this.cache.store.keys(pattern ? pattern : undefined);
+    }
+
+    async mDel(keys: string[]): Promise<void> {
+        await this.cache.store.mdel(...keys);
+    }
 }
