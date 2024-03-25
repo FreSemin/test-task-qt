@@ -37,7 +37,6 @@ const postMock: Post = {
 };
 
 const apiPostPath = `${process.env.APP_PREFIX}/post`;
-console.log('apiPostPath: ', apiPostPath);
 
 describe('PostService', () => {
     let service: PostService;
@@ -57,8 +56,6 @@ describe('PostService', () => {
         get: jest.fn((x) => x),
         set: jest.fn((key, value) => value),
     };
-
-    console.log('apiPostPath: ', apiPostPath);
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
