@@ -1,6 +1,7 @@
 import { DataSourceOptions } from 'typeorm';
 
 import { config } from 'dotenv';
+import { NODE_ENV } from '@common/constants';
 
 config();
 
@@ -13,6 +14,7 @@ export const dataSourceOptions: DataSourceOptions = {
     database: process.env.POSTGRES_DB,
     synchronize: false,
     dropSchema: false,
+    logging: process.env.NODE_ENV === NODE_ENV.DEV,
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
 };
