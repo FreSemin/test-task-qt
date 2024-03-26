@@ -260,6 +260,30 @@ After starting the app on port `APP_PORT` (4000 as default) you can use make req
     }
     ```
 
+## Testing
+
+To run all tests
+
+```
+npm run test
+```
+
+To run all tests and see code coverage
+
+```
+npm run test:cov
+```
+
+### Auto-fix and format
+
+```
+npm run lint
+```
+
+```
+npm run format
+```
+
 #### Postman
 
 You can Import collections and environment to your local PostMan from `postman` folder;
