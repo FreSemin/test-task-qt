@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { PaginatedResponse } from '@common/pagination/responses';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -12,6 +14,17 @@ async function bootstrap() {
     app.setGlobalPrefix(configService.get('APP_PREFIX', 'api'));
 
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+    const config = new DocumentBuilder()
+        .setTitle('Test Task QT')
+        .setDescription('Test Task QT')
+        .setVersion('0.1')
+        .addBearerAuth()
+        .build();
+    const document = SwaggerModule.createDocument(app, config, {
+        extraModels: [PaginatedResponse],
+    });
+    SwaggerModule.setup('doc', app, document);
 
     app.use(cookieParser());
 

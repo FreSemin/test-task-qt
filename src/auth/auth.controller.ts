@@ -19,9 +19,13 @@ import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Cookie, Public, UserAgent } from '@common/decorators';
 import { NODE_ENV } from '@common/constants';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { User } from '@user/entities/user.entity';
+import { AccessTokenResponse } from './responses';
 
 const REFRESH_TOKEN_COOKIE = 'refresh_token';
 
+@ApiTags('Auth')
 @Public()
 @Controller('auth')
 export class AuthController {
@@ -56,8 +60,10 @@ export class AuthController {
         res.sendStatus(HttpStatus.OK);
     }
 
+    @ApiBody({ type: RegisterDto })
     @UseInterceptors(ClassSerializerInterceptor)
     @Post('reg')
+    @ApiResponse({ status: HttpStatus.CREATED, type: User })
     async reg(@Body() registerDto: RegisterDto) {
         try {
             return await this.authService.reg(registerDto);
@@ -70,7 +76,11 @@ export class AuthController {
         }
     }
 
+    @ApiBody({ type: LoginDto })
     @Post('login')
+    @ApiResponse({ status: HttpStatus.CREATED, type: AccessTokenResponse })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Wrong email or password' })
     async login(@Body() loginDto: LoginDto, @Res() res: Response, @UserAgent() agent: string) {
         try {
             const tokens = await this.authService.login(loginDto, agent);
@@ -90,6 +100,8 @@ export class AuthController {
     }
 
     @Get('refresh')
+    @ApiResponse({ status: HttpStatus.CREATED, type: AccessTokenResponse })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Wrong email or password' })
     async refreshTokens(
         @Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string,
         @Res() res: Response,
@@ -113,6 +125,7 @@ export class AuthController {
     }
 
     @Get('logout')
+    @ApiResponse({ status: HttpStatus.OK })
     async logout(@Cookie(REFRESH_TOKEN_COOKIE) refreshToken: string, @Res() res: Response) {
         try {
             if (!refreshToken) {

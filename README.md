@@ -47,6 +47,8 @@ git clone https://github.com/FreSemin/test-task-qt
     ```
 
 After starting the app on port `APP_PORT` (4000 as default) you can use make requests to `http://localhost:4000/api`
+After starting the app you can open in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
+For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ### API Endpoints
 
