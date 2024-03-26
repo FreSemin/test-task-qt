@@ -1,0 +1,59 @@
+name: test-task-qt
+version: '3.8'
+
+services:
+    qt-db:
+        container_name: qt-db
+        build:
+            context: .
+            dockerfile: ./docker/db.dockerfile
+        restart: unless-stopped
+        networks:
+            - qt-network
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        ports:
+            - '${POSTGRES_PORT:-5432}:5432'
+        env_file:
+            - .env
+        volumes:
+            - qt-db-data:/var/lib/postgresql/data
+            - qt-db-logs:/var/log/postgresql
+        healthcheck:
+            test: ['CMD', 'pg_isready -U ${POSTGRES_USER}']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    qt-redis:
+        container_name: qt-redis
+        image: redis:7.2-alpine
+        restart: unless-stopped
+        networks:
+            - qt-network
+        ports:
+            - '${REDIS_PORT:-6379}:6379'
+        volumes:
+            - qt-redis-data:/data
+
+    qt-redis-gui:
+        container_name: qt-redis-gui
+        image: redislabs/redisinsight
+        restart: no
+        networks:
+            - qt-network
+        ports:
+            - '${REDIS_GUI_PORT}:5540'
+        depends_on:
+            - qt-redis
+
+volumes:
+    qt-db-data:
+    qt-db-logs:
+    qt-redis-data:
+
+networks:
+    qt-network:
+        driver: bridge

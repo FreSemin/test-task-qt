@@ -1,0 +1,333 @@
+{
+	"info": {
+		"_postman_id": "f8473646-a661-4dad-b77c-7a7a9615ab79",
+		"name": "test-task-qt",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31667936"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "One By Email Or Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/user/b1017175-4ea0-4bf6-b21d-f75d5d89e227",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"user",
+								"b1017175-4ea0-4bf6-b21d-f75d5d89e227"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Reg",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"name\",\r\n    \"email\": \"email33@gmail.com\",\r\n    \"password\": \"12345678\",\r\n    \"retypedPassword\": \"12345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/reg",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"reg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"email2@gmail.com\",\r\n    \"password\": \"12345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/auth/refresh",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/auth/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Post",
+			"item": [
+				{
+					"name": "All",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/post?authorId=a9f1eb65-8776-4c74-8d96-564135e1ad16&from=2024-03-20T20:00&to=2024-03-25T02:00&page=1&take=3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"post"
+							],
+							"query": [
+								{
+									"key": "authorId",
+									"value": "a9f1eb65-8776-4c74-8d96-564135e1ad16"
+								},
+								{
+									"key": "from",
+									"value": "2024-03-20T20:00"
+								},
+								{
+									"key": "to",
+									"value": "2024-03-25T02:00"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "take",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "One",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/post/3991edaa-ac4a-4df8-9bb4-ed6bfddaf9ee",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"post",
+								"3991edaa-ac4a-4df8-9bb4-ed6bfddaf9ee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create One",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"post1user1\",\r\n    \"description\": \"post description\"\r\n}  ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/post",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "One",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"update user2\",\r\n    \"description\": \"post description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/post/59e9b45a-8de3-45e3-8c83-c9cc47d5a318",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"post",
+								"59e9b45a-8de3-45e3-8c83-c9cc47d5a318"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "One",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/post/21fa91a7-085a-429a-8780-545b226b7d38",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"post",
+								"21fa91a7-085a-429a-8780-545b226b7d38"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
