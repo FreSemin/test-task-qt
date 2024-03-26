@@ -50,22 +50,22 @@ describe('PostService', () => {
     let postRepository: Repository<Post>;
 
     const mockPostRepository = {
-        findOneBy: jest.fn((x) => x),
-        findOne: jest.fn((x) => x),
-        create: jest.fn((x) => x),
+        findOneBy: jest.fn(),
+        findOne: jest.fn(),
+        create: jest.fn(),
         save: jest.fn(),
-        findAndCount: jest.fn((x) => x),
-        update: jest.fn((x) => x),
-        delete: jest.fn((x) => x),
+        findAndCount: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
     };
 
     const mockUserService = {
-        findOneById: jest.fn((x) => x),
+        findOneById: jest.fn(),
     };
 
     const mockRedisService = {
-        get: jest.fn((x) => x),
-        set: jest.fn((key, value) => value),
+        get: jest.fn(),
+        set: jest.fn(),
         getKeys: jest.fn(),
         mDel: jest.fn(),
     };
@@ -109,13 +109,15 @@ describe('PostService', () => {
                 postPaginatedMock.total,
             ]);
 
+            const spyRedisSet: jest.SpyInstance = jest.spyOn(mockRedisService, 'set');
+
             expect(
                 await service.findAll(
                     { page: postPaginatedMock.page, take: postPaginatedMock.data.length },
                     apiPostPath,
                 ),
             ).toEqual(postPaginatedMock);
-            expect(mockRedisService.set).toHaveBeenCalledWith(apiPostPath, postPaginatedMock);
+            expect(spyRedisSet).toHaveBeenCalledWith(apiPostPath, postPaginatedMock);
         });
 
         it('should get all posts from cache', async () => {
@@ -125,13 +127,15 @@ describe('PostService', () => {
                 postPaginatedMock.total,
             ]);
 
+            const spyRedisSet: jest.SpyInstance = jest.spyOn(mockRedisService, 'set');
+
             expect(
                 await service.findAll(
                     { page: postPaginatedMock.page, take: postPaginatedMock.data.length },
                     apiPostPath,
                 ),
             ).toEqual(postPaginatedMock);
-            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, apiPostPath, postPaginatedMock);
+            expect(spyRedisSet).toHaveBeenNthCalledWith(1, apiPostPath, postPaginatedMock);
 
             jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(postPaginatedMock);
             expect(
@@ -140,7 +144,7 @@ describe('PostService', () => {
                     apiPostPath,
                 ),
             ).toEqual(postPaginatedMock);
-            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, apiPostPath, postPaginatedMock);
+            expect(spyRedisSet).toHaveBeenNthCalledWith(1, apiPostPath, postPaginatedMock);
         });
 
         it('should throw error if author not exist', async () => {
@@ -161,36 +165,47 @@ describe('PostService', () => {
             jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
             jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
 
+            const spyRedisSet: jest.SpyInstance = jest.spyOn(mockRedisService, 'set');
+
             expect(await service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).toEqual(postMock);
-            expect(mockRedisService.set).toHaveBeenCalledWith(`${apiPostPath}/${postMock.id}`, postMock);
+            expect(spyRedisSet).toHaveBeenCalledWith(`${apiPostPath}/${postMock.id}`, postMock);
         });
 
         it('should get one post from cache', async () => {
             jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
             jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(postMock);
 
+            const spyRedisSet: jest.SpyInstance = jest.spyOn(mockRedisService, 'set');
+
             expect(await service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).toEqual(postMock);
-            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, `${apiPostPath}/${postMock.id}`, postMock);
+            expect(spyRedisSet).toHaveBeenNthCalledWith(1, `${apiPostPath}/${postMock.id}`, postMock);
 
             jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(postMock);
+
             expect(await service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).toEqual(postMock);
-            expect(mockRedisService.set).toHaveBeenNthCalledWith(1, `${apiPostPath}/${postMock.id}`, postMock);
+            expect(spyRedisSet).toHaveBeenNthCalledWith(1, `${apiPostPath}/${postMock.id}`, postMock);
         });
 
         it('should throw error if post not exist', async () => {
             jest.spyOn(mockRedisService, 'get').mockResolvedValueOnce(null);
             jest.spyOn(postRepository, 'findOneBy').mockResolvedValueOnce(null);
 
+            const spyRedisSet: jest.SpyInstance = jest.spyOn(mockRedisService, 'set');
+
             await expect(service.findOne(postMock.id, `${apiPostPath}/${postMock.id}`)).rejects.toThrow(
                 EntityNotFoundError,
             );
-            expect(mockRedisService.set).not.toHaveBeenCalled();
+            expect(spyRedisSet).not.toHaveBeenCalled();
         });
     });
 
     describe('create', () => {
         it('should create new post successfully', async () => {
+            jest.spyOn(postRepository, 'create').mockImplementationOnce(jest.fn());
+
             jest.spyOn(postRepository, 'save').mockResolvedValueOnce(postMock);
+
+            jest.spyOn(mockUserService, 'findOneById').mockResolvedValueOnce(authorMock);
 
             const result = await service.create(createPostDto, authorMock.id);
 
@@ -227,10 +242,14 @@ describe('PostService', () => {
                 generatedMaps: [],
             };
 
+            const spyRedisMDel: jest.SpyInstance = jest.spyOn(mockRedisService, 'mDel');
+
+            jest.spyOn(postRepository, 'create').mockImplementationOnce(jest.fn(() => updatedPostDto));
+
             jest.spyOn(postRepository, 'update').mockResolvedValueOnce(updateResult);
 
             expect(await service.update(postMock.id, updatedPostDto, postMock.authorId)).toEqual(updatedPostDto);
-            expect(mockRedisService.mDel).toHaveBeenCalled();
+            expect(spyRedisMDel).toHaveBeenCalled();
         });
 
         it('should throw error if user is not author of post', async () => {
@@ -275,10 +294,12 @@ describe('PostService', () => {
                 affected: 1,
             };
 
+            const spyRedisMDel: jest.SpyInstance = jest.spyOn(mockRedisService, 'mDel');
+
             jest.spyOn(postRepository, 'delete').mockResolvedValueOnce(deleteResult);
 
             expect(await service.delete(postMock.id, authorMock.id)).toEqual(postMock);
-            expect(mockRedisService.mDel).toHaveBeenCalled();
+            expect(spyRedisMDel).toHaveBeenCalled();
         });
 
         it('should throw error if user is not author of post', async () => {
