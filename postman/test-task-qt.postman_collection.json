@@ -76,7 +76,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"email2@gmail.com\",\r\n    \"password\": \"12345678\"\r\n}",
+							"raw": "{\r\n    \"email\": \"email33@gmail.com\",\r\n    \"password\": \"12345678\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -165,7 +165,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{URL}}/post?authorId=a9f1eb65-8776-4c74-8d96-564135e1ad16&from=2024-03-20T20:00&to=2024-03-25T02:00&page=1&take=3",
+							"raw": "{{URL}}/post?authorId=f2e1593c-bf97-4421-bd07-375440610dd2&from=2024-03-20T20:00&to=2024-03-25T22:00&page=1&take=3&",
 							"host": [
 								"{{URL}}"
 							],
@@ -175,7 +175,7 @@
 							"query": [
 								{
 									"key": "authorId",
-									"value": "a9f1eb65-8776-4c74-8d96-564135e1ad16"
+									"value": "f2e1593c-bf97-4421-bd07-375440610dd2"
 								},
 								{
 									"key": "from",
@@ -183,7 +183,7 @@
 								},
 								{
 									"key": "to",
-									"value": "2024-03-25T02:00"
+									"value": "2024-03-25T22:00"
 								},
 								{
 									"key": "page",
@@ -192,6 +192,10 @@
 								{
 									"key": "take",
 									"value": "3"
+								},
+								{
+									"key": "",
+									"value": null
 								}
 							]
 						}
@@ -214,13 +218,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{URL}}/post/3991edaa-ac4a-4df8-9bb4-ed6bfddaf9ee",
+							"raw": "{{URL}}/post/19c52d16-ecba-4363-8a30-15e8de4d588b",
 							"host": [
 								"{{URL}}"
 							],
 							"path": [
 								"post",
-								"3991edaa-ac4a-4df8-9bb4-ed6bfddaf9ee"
+								"19c52d16-ecba-4363-8a30-15e8de4d588b"
 							]
 						}
 					},
@@ -287,13 +291,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{URL}}/post/59e9b45a-8de3-45e3-8c83-c9cc47d5a318",
+							"raw": "{{URL}}/post/19c52d16-ecba-4363-8a30-15e8de4d588b",
 							"host": [
 								"{{URL}}"
 							],
 							"path": [
 								"post",
-								"59e9b45a-8de3-45e3-8c83-c9cc47d5a318"
+								"19c52d16-ecba-4363-8a30-15e8de4d588b"
 							]
 						}
 					},
@@ -315,13 +319,13 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{URL}}/post/21fa91a7-085a-429a-8780-545b226b7d38",
+							"raw": "{{URL}}/post/42ca922b-a6cb-476c-9152-ac901622949f",
 							"host": [
 								"{{URL}}"
 							],
 							"path": [
 								"post",
-								"21fa91a7-085a-429a-8780-545b226b7d38"
+								"42ca922b-a6cb-476c-9152-ac901622949f"
 							]
 						}
 					},
